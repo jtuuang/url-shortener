@@ -3,6 +3,7 @@ const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
 const Url = require('./models/url')
 const urlShortener = require('./urlShortener')
+const isRepeated = require('./isRepeated')
 require('./config/mongoose')
 
 const app = express()
@@ -16,9 +17,21 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
+app.get('/:shortenedUrl', (req, res) => {
+  const shortenedUrl = req.params.shortenedUrl
+  return Url.find()
+    .lean()
+    .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
+    .then(url => res.redirect(url.originalUrl))
+    .catch(error => console.log(error))
+})
+
 app.post('/shorten', (req, res) => {
   const originalUrl = req.body.url
-  const shortenedUrl = urlShortener()
+  let shortenedUrl = urlShortener()
+  while (isRepeated(shortenedUrl) === false) {
+    shortenedUrl = urlShortener()
+  }
   return Url.create({
     originalUrl,
     shortenedUrl
@@ -30,15 +43,6 @@ app.post('/shorten', (req, res) => {
         .then(url => res.render('new', { url }))
         .catch(error => console.log(error))
     })
-})
-
-app.get('/:shortenedUrl', (req, res) => {
-  const shortenedUrl = req.params.shortenedUrl
-  return Url.find()
-    .lean()
-    .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
-    .then(url => res.redirect(`${url.originalUrl}`))
-    .catch(error => console.log(error))
 })
 
 app.listen(3000, () => {
