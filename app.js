@@ -15,6 +15,12 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
+app.post('/shorten', (req, res) => {
+  const originalUrl = req.body.url
+  console.log(originalUrl)
+  res.render('index')
+})
+
 app.listen(3000, () => {
   console.log('The server is running on http://localhost:3000')
 })
