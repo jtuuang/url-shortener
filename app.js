@@ -2,6 +2,8 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
 const Url = require('./models/url')
+const urlShortener = require('./urlShortener')
+const url = require('./models/url')
 require('./config/mongoose')
 
 const app = express()
@@ -17,8 +19,22 @@ app.get('/', (req, res) => {
 
 app.post('/shorten', (req, res) => {
   const originalUrl = req.body.url
-  console.log(originalUrl)
-  res.render('index')
+  const shortenedUrl = urlShortener()
+  return Url.create({
+    originalUrl,
+    shortenedUrl
+  })
+    .then(() => res.render('index'))
+    .catch(error => console.log(error))
+})
+
+app.get('/:shortenedUrl', (req, res) => {
+  const shortenedUrl = req.params.shortenedUrl
+  return Url.find()
+    .lean()
+    .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
+    .then(url => res.redirect(`${url.originalUrl}`))
+    .catch(error => console.log(error))
 })
 
 app.listen(3000, () => {
