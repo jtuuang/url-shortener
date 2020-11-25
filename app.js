@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const Url = require('./models/url')
 const urlShortener = require('./urlShortener')
 const isRepeated = require('./isRepeated')
+const PORT = process.env.PORT || 3000
 require('./config/mongoose')
 
 const app = express()
@@ -45,6 +46,6 @@ app.post('/shorten', (req, res) => {
     })
 })
 
-app.listen(3000, () => {
-  console.log('The server is running on http://localhost:3000')
+app.listen(PORT, () => {
+  console.log(`The server is running on http://localhost:${PORT}`)
 })
