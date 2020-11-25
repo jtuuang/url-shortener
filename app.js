@@ -24,8 +24,13 @@ app.post('/shorten', (req, res) => {
     originalUrl,
     shortenedUrl
   })
-    .then(() => res.render('index'))
-    .catch(error => console.log(error))
+    .then(() => {
+      return Url.find()
+        .lean()
+        .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
+        .then(url => res.render('new', { url }))
+        .catch(error => console.log(error))
+    })
 })
 
 app.get('/:shortenedUrl', (req, res) => {
