@@ -3,7 +3,6 @@ const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
 const Url = require('./models/url')
 const urlShortener = require('./urlShortener')
-const isRepeated = require('./isRepeated')
 const PORT = process.env.PORT || 3000
 require('./config/mongoose')
 
@@ -29,15 +28,21 @@ app.get('/shortenedurls/:shortenedUrl', (req, res) => {
 app.post('/shorten', (req, res) => {
   const originalUrl = req.body.url
   let shortenedUrl = urlShortener()
-  while (isRepeated(shortenedUrl) === false) {
-    shortenedUrl = urlShortener()
-  }
-  return Url.create({
-    originalUrl,
-    shortenedUrl
-  })
-    .then(() => res.render('new', { shortenedUrl }))
-    .catch(error => console.log(error))
+  return Url.find()
+    .lean()
+    .then(urls => {
+      while (urls.some(url => url.shortenedUrl === shortenedUrl) === true) {
+        shortenedUrl = urlShortener()
+      }
+    })
+    .then(() => {
+      Url.create({
+        originalUrl,
+        shortenedUrl
+      })
+        .then(() => res.render('new', { shortenedUrl }))
+        .catch(error => console.log(error))
+    })
 })
 
 app.listen(PORT, () => {

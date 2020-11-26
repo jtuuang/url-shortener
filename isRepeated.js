@@ -2,13 +2,15 @@ const Url = require('./models/url')
 require('./config/mongoose')
 
 function isRepeated(shortenedUrl) {
-  return Url.find()
-    .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
+  Url.findOne({ shortenedUrl })
+    .lean()
     .then(url => {
-      if (!url) { // 沒有一樣的
-        return true
+      if (url) {
+        console.log('yes')
+        return true // 已存在
       } else {
-        return false // 有一樣的
+        console.log('no')
+        return false // 不存在
       }
     })
 }
