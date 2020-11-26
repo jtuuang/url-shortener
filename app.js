@@ -15,14 +15,13 @@ app.set('view engine', 'handlebars')
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/', (req, res) => {
-  res.render('index')
+  return res.render('index')
 })
 
-app.get('/:shortenedUrl', (req, res) => {
+app.get('/shortenedurls/:shortenedUrl', (req, res) => {
   const shortenedUrl = req.params.shortenedUrl
-  return Url.find()
+  return Url.findOne({ shortenedUrl })
     .lean()
-    .then(urls => urls.find(url => url.shortenedUrl === shortenedUrl))
     .then(url => res.redirect(url.originalUrl))
     .catch(error => console.log(error))
 })
