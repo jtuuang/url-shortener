@@ -31,7 +31,7 @@ app.post('/shorten', (req, res) => {
   return Url.find()
     .lean()
     .then(urls => {
-      while (urls.some(url => url.shortenedUrl === shortenedUrl) === true) {
+      while (urls.some(url => url.shortenedUrl === shortenedUrl)) {
         shortenedUrl = urlShortener()
       }
     })
